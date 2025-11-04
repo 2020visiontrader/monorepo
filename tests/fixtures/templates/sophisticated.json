@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "name": "Sophisticated Template",
+    "description": "An advanced template with rich features and customization options",
+    "complexity": "Sophisticated",
+    "tags": ["advanced", "feature-rich", "customizable"]
+  },
+  "theme_tokens": {
+    "colors": {
+      "primary": "#4f46e5",
+      "secondary": "#7c3aed",
+      "accent": "#10b981",
+      "background": "#f9fafb",
+      "text": "#111827",
+      "muted": "#6b7280"
+    },
+    "typography": {
+      "font_family": "Inter, system-ui",
+      "font_size_base": "16px",
+      "font_size_lg": "18px",
+      "line_height": "1.6",
+      "font_weights": {
+        "normal": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      }
+    },
+    "spacing": {
+      "base": "16px",
+      "small": "8px",
+      "medium": "24px",
+      "large": "32px",
+      "xl": "48px"
+    },
+    "radii": {
+      "base": "10px",
+      "large": "12px",
+      "xl": "16px"
+    },
+    "shadows": {
+      "sm": "0 1px 2px rgba(0,0,0,0.05)",
+      "base": "0 1px 3px rgba(0,0,0,0.1)",
+      "lg": "0 4px 6px rgba(0,0,0,0.1)"
+    }
+  },
+  "sections": [
+    {
+      "key": "hero",
+      "name": "Hero Section",
+      "enabled": true,
+      "props_schema": {
+        "title": {"type": "string", "required": true},
+        "subtitle": {"type": "string", "required": false},
+        "cta_text": {"type": "string", "required": false},
+        "cta_link": {"type": "string", "required": false},
+        "background_image": {"type": "string", "required": false},
+        "overlay": {"type": "boolean", "default": false}
+      }
+    },
+    {
+      "key": "features",
+      "name": "Features Grid",
+      "enabled": true,
+      "props_schema": {
+        "features": {"type": "array", "required": true, "minItems": 3},
+        "columns": {"type": "number", "enum": [2, 3, 4], "default": 3},
+        "show_icons": {"type": "boolean", "default": true}
+      }
+    },
+    {
+      "key": "products",
+      "name": "Product Showcase",
+      "enabled": true,
+      "props_schema": {
+        "products": {"type": "array", "required": true},
+        "layout": {"type": "string", "enum": ["grid", "carousel", "masonry"], "default": "grid"},
+        "columns": {"type": "number", "enum": [2, 3, 4], "default": 3},
+        "show_filters": {"type": "boolean", "default": true},
+        "show_sort": {"type": "boolean", "default": true}
+      }
+    },
+    {
+      "key": "testimonials",
+      "name": "Testimonials",
+      "enabled": false,
+      "props_schema": {
+        "testimonials": {"type": "array", "required": true},
+        "layout": {"type": "string", "enum": ["slider", "grid"], "default": "slider"}
+      }
+    },
+    {
+      "key": "cta",
+      "name": "Call to Action",
+      "enabled": true,
+      "props_schema": {
+        "title": {"type": "string", "required": true},
+        "description": {"type": "string", "required": false},
+        "button_text": {"type": "string", "required": true},
+        "button_link": {"type": "string", "required": true}
+      }
+    }
+  ],
+  "compatibility": {
+    "shopify": {
+      "sections_enabled": true,
+      "metafields": ["product.custom.badge", "product.custom.video"],
+      "os2_0_features": true,
+      "app_blocks": true
+    }
+  }
+}
+

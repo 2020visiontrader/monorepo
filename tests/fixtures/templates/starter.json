@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "name": "Starter Template",
+    "description": "A clean and simple starter template for e-commerce stores",
+    "complexity": "Starter",
+    "tags": ["general", "minimal"]
+  },
+  "theme_tokens": {
+    "colors": {
+      "primary": "#6366f1",
+      "secondary": "#8b5cf6",
+      "background": "#ffffff",
+      "text": "#1f2937"
+    },
+    "typography": {
+      "font_family": "Inter",
+      "font_size_base": "16px",
+      "line_height": "1.5"
+    },
+    "spacing": {
+      "base": "16px",
+      "small": "8px",
+      "large": "32px"
+    },
+    "radii": {
+      "base": "8px",
+      "large": "12px"
+    }
+  },
+  "sections": [
+    {
+      "key": "hero",
+      "name": "Hero Section",
+      "enabled": true,
+      "props_schema": {
+        "title": {"type": "string", "required": true},
+        "subtitle": {"type": "string", "required": false},
+        "cta_text": {"type": "string", "required": false}
+      }
+    },
+    {
+      "key": "features",
+      "name": "Features Section",
+      "enabled": true,
+      "props_schema": {
+        "features": {"type": "array", "required": true}
+      }
+    },
+    {
+      "key": "products",
+      "name": "Products Section",
+      "enabled": true,
+      "props_schema": {
+        "products": {"type": "array", "required": true},
+        "layout": {"type": "string", "enum": ["grid", "list"], "default": "grid"}
+      }
+    }
+  ],
+  "compatibility": {
+    "shopify": {
+      "sections_enabled": true,
+      "metafields": [],
+      "os2_0_features": true
+    }
+  }
+}
+
