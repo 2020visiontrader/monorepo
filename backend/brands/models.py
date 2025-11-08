@@ -3,6 +3,7 @@ Brand models
 """
 from django.db import models
 from django.conf import settings
+from django.db import transaction
 import uuid
 
 
@@ -34,6 +35,18 @@ class BrandProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     brand = models.OneToOneField(Brand, on_delete=models.CASCADE, related_name='profile')
     
+    # Onboarding state
+    onboarding_step = models.CharField(max_length=50, default='mission', choices=[
+        ('mission', 'Mission'),
+        ('categories', 'Categories'),
+        ('personas', 'Personas'),
+        ('tone', 'Tone'),
+        ('products', 'Products'),
+        ('shopify', 'Shopify Connection')
+    ])
+    completed_steps = models.JSONField(default=list)
+    is_onboarding_complete = models.BooleanField(default=False)
+    
     # Basics
     mission = models.TextField(blank=True)
     categories = models.JSONField(default=list)  # List of category strings
@@ -52,8 +65,98 @@ class BrandProfile(models.Model):
     shopify_access_token = models.TextField(blank=True)
     shopify_connected_at = models.DateTimeField(null=True, blank=True)
     
+    # Brand Identity (from onboarding)
+    brand_identity = models.JSONField(default=dict)  # Consolidated onboarding responses
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def next_steps(self):
+        """Get next available steps based on current progress"""
+        all_steps = [
+            'mission',  # Tell us about your brand
+            'categories',  # Select your categories
+            'personas',  # Define your audience personas
+            'tone',  # Set your brand voice
+            'products',  # Product selection
+            'shopify'  # Optional: Connect Shopify
+        ]
+        
+        current_idx = all_steps.index(self.onboarding_step) if self.onboarding_step in all_steps else -1
+        completed = set(self.completed_steps)
+        
+        # Return list of available next steps
+        next_available = []
+        
+        for idx, step in enumerate(all_steps):
+            # Step is available if:
+            # 1. Not already completed
+            # 2. Either current step or immediately follows a completed step
+            if step not in completed and (
+                step == self.onboarding_step or
+                (idx > 0 and all_steps[idx-1] in completed)
+            ):
+                next_available.append({
+                    'id': step,
+                    'title': step.title(),
+                    'is_current': step == self.onboarding_step,
+                    'can_access': True
+                })
+            elif step not in completed:
+                next_available.append({
+                    'id': step,
+                    'title': step.title(),
+                    'is_current': False,
+                    'can_access': False
+                })
+                
+        return next_available
+    
+    @transaction.atomic
+    def sync_onboarding_responses(self, response_data):
+        """Sync profile with onboarding response data"""
+        step = response_data.get('step')
+        data = response_data.get('data', {})
+        
+        if step not in self.completed_steps:
+            self.completed_steps.append(step)
+        
+        # Update brand_identity field
+        brand_identity = self.brand_identity or {}
+        brand_identity[step] = data
+        self.brand_identity = brand_identity
+        
+        # Map each step to the appropriate profile field
+        if step == 'mission':
+            self.mission = data.get('mission', '')
+            
+        elif step == 'categories':
+            self.categories = data.get('categories', [])
+            
+        elif step == 'personas':
+            self.personas = data.get('personas', [])
+            
+        elif step == 'tone':
+            self.tone_sliders = data.get('tone_sliders', {})
+            self.required_terms = data.get('required_terms', [])
+            self.forbidden_terms = data.get('forbidden_terms', [])
+            
+        elif step == 'products':
+            self.single_sku = data.get('single_sku', False)
+            
+        elif step == 'shopify' and data.get('connected'):
+            self.shopify_store = data.get('store', '')
+            self.shopify_access_token = data.get('access_token', '')
+            self.shopify_connected_at = data.get('connected_at')
+
+        # Check if onboarding is complete
+        required_steps = {'mission', 'categories', 'personas', 'tone', 'products'}
+        if all(step in self.completed_steps for step in required_steps):
+            self.is_onboarding_complete = True
+
+        self.save()
+        return True
 
     class Meta:
         db_table = 'brand_profiles'
