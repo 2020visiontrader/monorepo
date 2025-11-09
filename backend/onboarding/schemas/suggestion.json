@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Suggestion",
+  "description": "Schema for AI-generated suggestions",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["pricing", "inventory", "seo", "marketing", "content", "product"],
+      "description": "Category of suggestion"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "Brief title for the suggestion"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Detailed explanation of the suggestion"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Priority level"
+    },
+    "impact_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Estimated impact score (0-100)"
+    },
+    "action_required": {
+      "type": "string",
+      "description": "Specific action user should take"
+    },
+    "estimated_effort": {
+      "type": "string",
+      "description": "Estimated effort (e.g., '5 minutes', '1 hour')"
+    },
+    "affected_products": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "SKUs or product IDs affected by this suggestion"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Relevant metrics supporting the suggestion",
+      "additionalProperties": true
+    }
+  },
+  "required": ["type", "title", "priority", "impact_score"],
+  "additionalProperties": false
+}

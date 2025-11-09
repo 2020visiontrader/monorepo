@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StoreSettings",
+  "description": "Schema for store settings during onboarding",
+  "type": "object",
+  "properties": {
+    "platform": {
+      "type": "string",
+      "enum": ["shopify", "woocommerce", "custom", "magento", "bigcommerce"],
+      "description": "E-commerce platform"
+    },
+    "store_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Store URL"
+    },
+    "store_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "Store name"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "ISO 4217 currency code (e.g., USD, EUR, GBP)"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone (e.g., America/New_York, Europe/London)"
+    },
+    "country": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "ISO 3166-1 alpha-2 country code"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+      "description": "Language code (e.g., en, en-US)"
+    }
+  },
+  "required": ["platform", "store_url"],
+  "additionalProperties": false
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProductPriorities",
+  "description": "Schema for product prioritization during onboarding",
+  "type": "object",
+  "properties": {
+    "selected_skus": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "description": "List of manually selected SKUs (max 1000)"
+    },
+    "scan_top_sellers_only": {
+      "type": "boolean",
+      "description": "Whether to scan only top sellers"
+    },
+    "sample_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000,
+      "description": "Maximum number of products to scan"
+    },
+    "category_filters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Categories to include in scan"
+    },
+    "exclude_out_of_stock": {
+      "type": "boolean",
+      "default": false,
+      "description": "Exclude out of stock products"
+    },
+    "priority_method": {
+      "type": "string",
+      "enum": ["manual", "top_sellers", "newest", "all"],
+      "description": "Method for prioritizing products"
+    }
+  },
+  "additionalProperties": false,
+  "anyOf": [
+    {
+      "required": ["selected_skus"]
+    },
+    {
+      "required": ["scan_top_sellers_only"]
+    },
+    {
+      "required": ["priority_method"]
+    }
+  ]
+}

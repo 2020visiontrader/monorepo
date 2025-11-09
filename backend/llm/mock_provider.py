@@ -2,7 +2,7 @@
 Mock LLM provider for ST/SIT/UAT
 """
 from typing import Dict, List, Optional
-from .providers import LLMProvider
+from .base import LLMProvider
 from .schemas import ContentVariantSchema, SEOProposalSchema, BlueprintSchema, TemplateSchema
 
 

@@ -2,7 +2,8 @@
 Content views
 """
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
+from core.throttling import ContentGenerateThrottle
 from rest_framework.response import Response
 from django.conf import settings
 from .models import ProductDraft, ContentVariant, PublishJob

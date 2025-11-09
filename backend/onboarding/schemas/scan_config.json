@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScanConfig",
+  "description": "Configuration for catalog scan",
+  "type": "object",
+  "properties": {
+    "product_priorities": {
+      "$ref": "product_priorities.json"
+    },
+    "scan_depth": {
+      "type": "string",
+      "enum": ["quick", "standard", "deep"],
+      "description": "Depth of analysis to perform"
+    },
+    "include_competitors": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to include competitor analysis"
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 3600,
+      "default": 600,
+      "description": "Maximum time for scan in seconds"
+    }
+  },
+  "additionalProperties": false
+}

@@ -34,7 +34,6 @@ class BrandMemory(models.Model):
     """Brand memory for AI context"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     brand = models.ForeignKey('brands.Brand', on_delete=models.CASCADE, related_name='ai_memories')
-    brand_id = models.UUIDField()  # Denormalized for queries
     
     memory_type = models.CharField(max_length=50)  # 'competitor_insight', 'user_feedback', etc.
     content = models.JSONField(default=dict)
@@ -45,7 +44,7 @@ class BrandMemory(models.Model):
         db_table = 'brand_memories'
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['brand_id', 'memory_type']),
+            models.Index(fields=['brand', 'memory_type']),
         ]
     
     def __str__(self):

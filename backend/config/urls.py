@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/jobs/', include('core.job_urls')),
     path('api/templates/', include('store_templates.urls')),
     path('api/dashboard/', include('dashboard.urls')),
+    path('api/onboarding/', include('onboarding.urls')),
 ]
 

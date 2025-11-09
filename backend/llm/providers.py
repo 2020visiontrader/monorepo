@@ -4,6 +4,7 @@ LLM provider abstraction
 from abc import ABC, abstractmethod
 from django.conf import settings
 from typing import Dict, List, Optional
+from .base import LLMProvider
 from .mock_provider import MockLLMProvider
 # TODO: Add OpenAI, Anthropic providers when needed
 

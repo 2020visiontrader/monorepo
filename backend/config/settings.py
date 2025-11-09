@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'store_templates',
     'dashboard',
     'ai',
+    'onboarding'
 ]
 
 MIDDLEWARE = [

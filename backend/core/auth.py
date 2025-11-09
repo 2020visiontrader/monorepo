@@ -8,8 +8,118 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import User, RoleAssignment
+from django.db import transaction
+from django.utils.text import slugify
+from .models import User, RoleAssignment, Organization, Role
 from .serializers import UserSerializer, RoleAssignmentSerializer
+from brands.models import Brand, BrandProfile
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup_view(request):
+    """User signup with organization, brand, and onboarding creation"""
+    email = request.data.get('email')
+    password = request.data.get('password')
+    name = request.data.get('name', '').strip()
+    organization_name = request.data.get('organization_name', '').strip()
+    brand_name = request.data.get('brand_name', '').strip()
+    
+    if not all([email, password, name, organization_name, brand_name]):
+        return Response(
+            {'detail': 'All fields are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {'detail': 'Email already registered'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Create everything in a transaction
+    try:
+        with transaction.atomic():
+            # 1. Create organization
+            org_slug = slugify(organization_name)
+            organization = Organization.objects.create(
+                name=organization_name,
+                slug=org_slug
+            )
+            
+            # 2. Create user
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+                first_name=name.split()[0],
+                last_name=' '.join(name.split()[1:]) if len(name.split()) > 1 else '',
+                organization=organization
+            )
+            
+            # 3. Create brand
+            brand_slug = slugify(brand_name)
+            brand = Brand.objects.create(
+                organization=organization,
+                name=brand_name,
+                slug=brand_slug
+            )
+            
+            # 4. Create brand profile (empty initially)
+            brand_profile = BrandProfile.objects.create(
+                brand=brand
+            )
+            
+            # 5. Create role assignment (org admin)
+            RoleAssignment.objects.create(
+                user=user,
+                organization=organization,
+                role=Role.ORG_ADMIN
+            )
+            
+            # 6. Create brand role assignment
+            RoleAssignment.objects.create(
+                user=user,
+                organization=organization,
+                brand_id=brand.id,
+                role=Role.BRAND_MANAGER
+            )
+            
+            # Brand profile will handle onboarding state
+            brand_profile = BrandProfile.objects.create(
+                brand=brand,
+                onboarding_step='mission',
+                completed_steps=[],
+                is_onboarding_complete=False
+            )
+            
+            # Log user in
+            login(request, user)
+            
+            return Response({
+                'user': UserSerializer(user).data,
+                'organization': {
+                    'id': str(organization.id),
+                    'name': organization.name,
+                    'slug': organization.slug
+                },
+                'brand': {
+                    'id': str(brand.id),
+                    'name': brand.name,
+                    'slug': brand.slug,
+                    'onboarding': {
+                        'current_step': brand_profile.onboarding_step,
+                        'next_steps': brand_profile.next_steps,
+                        'is_complete': brand_profile.is_onboarding_complete
+                    }
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+    except Exception as e:
+        return Response(
+            {'detail': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(['POST'])

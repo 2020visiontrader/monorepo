@@ -34,6 +34,24 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
+    
+    # Override AbstractUser fields to avoid clashes
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        related_name='core_users',
+        related_query_name='core_user',
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        related_name='core_users',
+        related_query_name='core_user',
+        help_text='Specific permissions for this user.',
+    )
 
     class Meta:
         db_table = 'users'
