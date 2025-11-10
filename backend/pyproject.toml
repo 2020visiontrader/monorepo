@@ -3,6 +3,7 @@ name = "ecommerce-optimizer-backend"
 version = "0.1.0"
 description = "AI-powered e-commerce optimization platform backend"
 authors = ["Your Name <you@example.com>"]
+packages = [{ include = "." }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -49,4 +50,3 @@ python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-
