@@ -72,8 +72,11 @@ jobs:
         run: pip install poetry
 
       - name: Install dependencies
-        working-directory: ./backend
-        run: poetry install
+        run: |
+          python -V
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --no-root
 
       - name: Lint with ruff
         working-directory: ./backend
@@ -160,4 +163,3 @@ jobs:
       - name: Build
         working-directory: ./frontend
         run: pnpm build
-
