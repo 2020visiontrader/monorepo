@@ -22,13 +22,16 @@ def organization(db):
 @pytest.fixture
 def admin_user(db, organization):
     """Create admin user"""
-    user = User.objects.create_user(
+    user = User.objects.create(
+        username='admin@example.com',
         email='admin@example.com',
-        password='testpass123',
-        organization=organization
+        first_name='Admin',
+        last_name='User',
+        is_staff=True,
+        is_superuser=True,
     )
-    user.is_staff = True
-    user.is_superuser = True
+    user.organization = organization
+    user.set_password('testpass123')
     user.save()
     return user
 
@@ -36,11 +39,16 @@ def admin_user(db, organization):
 @pytest.fixture
 def regular_user(db, organization):
     """Create regular user"""
-    return User.objects.create_user(
+    user = User.objects.create(
+        username='user@example.com',
         email='user@example.com',
-        password='testpass123',
-        organization=organization
+        first_name='Regular',
+        last_name='User',
     )
+    user.organization = organization
+    user.set_password('testpass123')
+    user.save()
+    return user
 
 
 @pytest.mark.django_db

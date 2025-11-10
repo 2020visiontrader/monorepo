@@ -65,33 +65,47 @@ def signup_view(request):
                 slug=brand_slug
             )
             
-            # 4. Create brand profile (empty initially)
-            brand_profile = BrandProfile.objects.create(
-                brand=brand
-            )
-            
-            # 5. Create role assignment (org admin)
+            # 4. Create role assignment (org admin)
             RoleAssignment.objects.create(
                 user=user,
                 organization=organization,
                 role=Role.ORG_ADMIN
             )
-            
-            # 6. Create brand role assignment
+
+            # 5. Create brand role assignment
             RoleAssignment.objects.create(
                 user=user,
                 organization=organization,
                 brand_id=brand.id,
                 role=Role.BRAND_MANAGER
             )
-            
-            # Brand profile will handle onboarding state
-            brand_profile = BrandProfile.objects.create(
-                brand=brand,
-                onboarding_step='mission',
-                completed_steps=[],
-                is_onboarding_complete=False
-            )
+
+            # 6. Create brand profile with onboarding state using get_or_create for idempotency
+            from django.db import IntegrityError
+            try:
+                brand_profile, created = BrandProfile.objects.get_or_create(
+                    brand=brand,
+                    defaults={
+                        'onboarding_step': 'mission',
+                        'completed_steps': [],
+                        'is_onboarding_complete': False,
+                        'owner': user,
+                    }
+                )
+                if not created:
+                    # Update fields carefully without overwriting existing data
+                    updated = False
+                    if brand_profile.owner is None:
+                        brand_profile.owner = user
+                        updated = True
+                    if updated:
+                        brand_profile.save(update_fields=['owner'])
+            except IntegrityError:
+                # Handle rare race condition - fetch existing profile
+                brand_profile = BrandProfile.objects.get(brand=brand)
+                if brand_profile.owner is None:
+                    brand_profile.owner = user
+                    brand_profile.save(update_fields=['owner'])
             
             # Log user in
             login(request, user)
@@ -202,4 +216,3 @@ def me_view(request):
         'orgs': [{'id': str(org.id), 'name': org.name} for org in orgs],
         'brands': [{'id': str(brand.id), 'name': brand.name} for brand in brands],
     })
-

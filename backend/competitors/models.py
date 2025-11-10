@@ -81,7 +81,7 @@ class PageNode(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     competitor = models.ForeignKey(CompetitorProfile, on_delete=models.CASCADE, related_name='pages')
     crawl_run = models.ForeignKey(CrawlRun, on_delete=models.CASCADE, related_name='pages', null=True)
-    
+
     url = models.URLField()
     title = models.CharField(max_length=255, blank=True)
     page_type = models.CharField(max_length=50, blank=True)  # homepage, category, product, etc.
@@ -89,9 +89,9 @@ class PageNode(models.Model):
     raw_html = models.TextField(blank=True)  # Snapshot of HTML
     extracted_text = models.TextField(blank=True)
     metadata = models.JSONField(default=dict)  # H1-H3, meta tags, etc.
-    
+
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -102,3 +102,47 @@ class PageNode(models.Model):
     def __str__(self):
         return f"{self.competitor.url} - {self.url}"
 
+
+class CompetitorSite(models.Model):
+    """Competitor website profile for scraping"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    brand = models.ForeignKey('brands.Brand', on_delete=models.CASCADE, related_name='competitor_sites')
+    url = models.URLField()
+    name = models.CharField(max_length=255, blank=True)
+    last_scraped_at = models.DateTimeField(null=True, blank=True)
+    metadata = models.JSONField(default=dict)  # Scraping config, rate limits, etc.
+
+    class Meta:
+        db_table = 'competitor_sites'
+        unique_together = [['brand', 'url']]
+        ordering = ['-last_scraped_at']
+
+    def __str__(self):
+        return f"{self.brand.name} - {self.url}"
+
+
+class CompetitorItem(models.Model):
+    """Individual scraped item from competitor site"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    site = models.ForeignKey(CompetitorSite, on_delete=models.CASCADE, related_name='items')
+
+    url = models.URLField()
+    title = models.CharField(max_length=255, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3, blank=True, default='USD')
+    availability = models.CharField(max_length=50, blank=True)
+    images = models.JSONField(default=list)  # List of image URLs
+    variants = models.JSONField(default=list)  # Size, color options
+    raw_html = models.TextField(blank=True, null=True)  # Raw HTML snapshot
+    scraped_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'competitor_items'
+        ordering = ['-scraped_at']
+        indexes = [
+            models.Index(fields=['site', 'scraped_at']),
+            models.Index(fields=['price', 'currency']),
+        ]
+
+    def __str__(self):
+        return f"{self.site.url} - {self.title or self.url}"

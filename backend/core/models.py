@@ -25,7 +25,6 @@ class Organization(models.Model):
 
 class User(AbstractUser):
     """Extended user model"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     organization = models.ForeignKey(
         Organization,
@@ -161,7 +160,7 @@ class IdempotencyKey(models.Model):
     response_status = models.IntegerField()
     response_data = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         db_table = 'idempotency_keys'
         indexes = [
@@ -171,3 +170,33 @@ class IdempotencyKey(models.Model):
 
     def __str__(self):
         return f"{self.route} - {self.key}"
+
+
+class TaskRun(models.Model):
+    """Track background agent task executions"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    agent_name = models.CharField(max_length=100)
+    payload = models.JSONField(default=dict)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('RUNNING', 'Running'),
+            ('SUCCESS', 'Success'),
+            ('FAILED', 'Failed'),
+        ],
+        default='RUNNING'
+    )
+    error_message = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'task_runs'
+        ordering = ['-start_time']
+        indexes = [
+            models.Index(fields=['agent_name', 'status']),
+            models.Index(fields=['start_time']),
+        ]
+
+    def __str__(self):
+        return f"{self.agent_name} - {self.status} - {self.start_time}"

@@ -23,11 +23,16 @@ def organization(db):
 
 @pytest.fixture
 def user(db, organization):
-    return User.objects.create_user(
+    user = User.objects.create(
+        username='test@example.com',
         email='test@example.com',
-        password='testpass123',
-        organization=organization
+        first_name='Test',
+        last_name='User',
     )
+    user.organization = organization
+    user.set_password('testpass123')
+    user.save()
+    return user
 
 
 @pytest.fixture

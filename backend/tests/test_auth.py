@@ -21,13 +21,15 @@ def org():
 
 @pytest.fixture
 def user(org):
-    user = User.objects.create_user(
+    user = User.objects.create(
         username='testuser',
         email='test@example.com',
-        password='password123!',
-        organization=org,
+        first_name='Test',
+        last_name='User',
     )
-    RoleAssignment.objects.create(user=user, organization=org, role='ORG_ADMIN')
+    user.organization = org
+    user.set_password('password123!')
+    user.save()
     return user
 
 
@@ -42,8 +44,22 @@ def test_login_invalid_credentials(api_client):
 
 
 @pytest.mark.django_db
-def test_login_valid_credentials(api_client, user):
+def test_login_valid_credentials(api_client, org):
     """Test login with valid credentials returns 200"""
+    # Create user directly in test
+    user = User.objects.create(
+        username='testuser',
+        email='test@example.com',
+        first_name='Test',
+        last_name='User',
+    )
+    user.organization = org
+    user.set_password('password123!')
+    user.save()
+
+    # Create a role assignment for the user
+    RoleAssignment.objects.create(user=user, organization=org, role='ORG_ADMIN')
+
     response = api_client.post('/api/auth/login', {
         'email': 'test@example.com',
         'password': 'password123!',
@@ -77,4 +93,3 @@ def test_logout(api_client, user):
     api_client.force_authenticate(user=user)
     response = api_client.post('/api/auth/logout')
     assert response.status_code == 204
-
