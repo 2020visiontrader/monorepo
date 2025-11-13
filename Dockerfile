@@ -20,11 +20,10 @@ RUN poetry config virtualenvs.create false \
 # Copy application code
 COPY . .
 
-# Collect static files
-RUN cd backend && python manage.py collectstatic --noinput || true
+# Collect static files (only for web services, skip for workers)
+# RUN cd backend && python manage.py collectstatic --noinput || true
 
-# Expose port
-EXPOSE 8000
+# Expose port (only for web services)
+# EXPOSE 8000
 
-# Run migrations and start server
-CMD cd backend && python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+# No CMD - workers use startCommand from render.yaml
