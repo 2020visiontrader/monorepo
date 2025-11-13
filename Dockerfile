@@ -21,10 +21,10 @@ RUN poetry config virtualenvs.create false \
 COPY . .
 
 # Collect static files
-RUN python manage.py collectstatic --noinput || true
+RUN cd backend && python manage.py collectstatic --noinput || true
 
 # Expose port
 EXPOSE 8000
 
 # Run migrations and start server
-CMD python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+CMD cd backend && python manage.py migrate && python manage.py runserver 0.0.0.0:8000
