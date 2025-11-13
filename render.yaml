@@ -11,7 +11,7 @@ services:
     name: copy-worker
     env: python
     buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
-    startCommand: "cd backend && celery -A config.celery_config worker -Q copy --loglevel=info --concurrency=1 --hostname=copy-worker@%h"
+    startCommand: "cd backend && celery -A config.celery worker -Q copy --loglevel=info --concurrency=1 --hostname=copy-worker@%h"
     plan: free
     envVars:
       - key: SUPABASE_URL
@@ -38,7 +38,7 @@ services:
     name: bulk-worker
     env: python
     buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
-    startCommand: "cd backend && celery -A config.celery_config worker -Q bulk --loglevel=info --concurrency=1 --hostname=bulk-worker@%h"
+    startCommand: "cd backend && celery -A config.celery worker -Q bulk --loglevel=info --concurrency=1 --hostname=bulk-worker@%h"
     plan: free
     envVars:
       - key: SUPABASE_URL
@@ -65,7 +65,7 @@ services:
     name: scheduler-worker
     env: python
     buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
-    startCommand: "cd backend && celery -A config.celery_config worker -Q scheduler --loglevel=info --concurrency=1 --hostname=scheduler-worker@%h"
+    startCommand: "cd backend && celery -A config.celery worker -Q scheduler --loglevel=info --concurrency=1 --hostname=scheduler-worker@%h"
     plan: free
     envVars:
       - key: SUPABASE_URL
