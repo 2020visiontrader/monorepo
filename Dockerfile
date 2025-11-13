@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip install poetry
 
 # Copy dependency files
-COPY backend/pyproject.toml backend/poetry.lock ./
+COPY backend/pyproject.toml ./
 
 # Install dependencies
 RUN poetry config virtualenvs.create false \
