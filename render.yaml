@@ -10,8 +10,7 @@ services:
   - type: worker
     name: copy-worker
     env: python
-    dockerfilePath: backend/Dockerfile.worker
-    buildCommand: "cd backend && pip install poetry && poetry config virtualenvs.create false && poetry install --no-root"
+    buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
     startCommand: "cd backend && celery -A config.celery_config worker -Q copy --loglevel=info --concurrency=1 --hostname=copy-worker@%h"
     plan: free
     envVars:
@@ -38,8 +37,7 @@ services:
   - type: worker
     name: bulk-worker
     env: python
-    dockerfilePath: backend/Dockerfile.worker
-    buildCommand: "cd backend && pip install poetry && poetry config virtualenvs.create false && poetry install --no-root"
+    buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
     startCommand: "cd backend && celery -A config.celery_config worker -Q bulk --loglevel=info --concurrency=1 --hostname=bulk-worker@%h"
     plan: free
     envVars:
@@ -66,8 +64,7 @@ services:
   - type: worker
     name: scheduler-worker
     env: python
-    dockerfilePath: backend/Dockerfile.worker
-    buildCommand: "cd backend && pip install poetry && poetry config virtualenvs.create false && poetry install --no-root"
+    buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
     startCommand: "cd backend && celery -A config.celery_config worker -Q scheduler --loglevel=info --concurrency=1 --hostname=scheduler-worker@%h"
     plan: free
     envVars:
@@ -94,4 +91,4 @@ services:
 # - Free tier: 750 hours/month per worker (~31 days at 1 instance each)
 # - Each worker counts separately toward free tier hours
 # - Tasks are automatically routed to appropriate workers by queue
-# - dockerfilePath specifies backend/Dockerfile.worker for all workers
+# - Uses root Dockerfile with Poetry for dependency management
