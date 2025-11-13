@@ -1,0 +1,97 @@
+# FOR REVIEW ONLY — DO NOT MERGE
+# Render deployment configuration for specialized Celery workers
+# Deploy to: https://render.com
+#
+# This sets up 3 specialized Celery workers for different task types
+# Each worker handles specific queues for better isolation and performance
+
+services:
+  # Copy generation worker
+  - type: worker
+    name: copy-worker
+    env: python
+    dockerfilePath: backend/Dockerfile.worker
+    buildCommand: "cd backend && pip install poetry && poetry config virtualenvs.create false && poetry install --no-root"
+    startCommand: "cd backend && celery -A config.celery_config worker -Q copy --loglevel=info --concurrency=1 --hostname=copy-worker@%h"
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: route-llm
+      - key: NODE_ENV
+        value: production
+      - key: FEATURE_FLAG_USE_REAL_API
+        value: true
+
+  # Bulk operations worker
+  - type: worker
+    name: bulk-worker
+    env: python
+    dockerfilePath: backend/Dockerfile.worker
+    buildCommand: "cd backend && pip install poetry && poetry config virtualenvs.create false && poetry install --no-root"
+    startCommand: "cd backend && celery -A config.celery_config worker -Q bulk --loglevel=info --concurrency=1 --hostname=bulk-worker@%h"
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: route-llm
+      - key: NODE_ENV
+        value: production
+      - key: FEATURE_FLAG_USE_REAL_API
+        value: true
+
+  # Scheduler worker
+  - type: worker
+    name: scheduler-worker
+    env: python
+    dockerfilePath: backend/Dockerfile.worker
+    buildCommand: "cd backend && pip install poetry && poetry config virtualenvs.create false && poetry install --no-root"
+    startCommand: "cd backend && celery -A config.celery_config worker -Q scheduler --loglevel=info --concurrency=1 --hostname=scheduler-worker@%h"
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: route-llm
+      - key: NODE_ENV
+        value: production
+      - key: FEATURE_FLAG_USE_REAL_API
+        value: true
+
+# Notes:
+# - Free tier: 750 hours/month per worker (~31 days at 1 instance each)
+# - Each worker counts separately toward free tier hours
+# - Tasks are automatically routed to appropriate workers by queue
+# - dockerfilePath specifies backend/Dockerfile.worker for all workers
