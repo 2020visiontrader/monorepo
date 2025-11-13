@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip install poetry
 
 # Copy dependency files
-COPY pyproject.toml ./
+COPY backend/pyproject.toml backend/poetry.lock ./
 
 # Install dependencies
 RUN poetry config virtualenvs.create false \
@@ -28,4 +28,3 @@ EXPOSE 8000
 
 # Run migrations and start server
 CMD python manage.py migrate && python manage.py runserver 0.0.0.0:8000
-
