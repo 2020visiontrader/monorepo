@@ -22,8 +22,10 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
-      - key: UPSTASH_REDIS_URL
-        sync: false
+      - key: CELERY_BROKER_URL
+        fromSecret: UPSTASH_REDIS_URL
+      - key: CELERY_RESULT_BACKEND
+        fromSecret: UPSTASH_REDIS_URL
       - key: LLM_API_KEY
         sync: false
       - key: LLM_PROVIDER
@@ -51,8 +53,10 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
-      - key: UPSTASH_REDIS_URL
-        sync: false
+      - key: CELERY_BROKER_URL
+        fromSecret: UPSTASH_REDIS_URL
+      - key: CELERY_RESULT_BACKEND
+        fromSecret: UPSTASH_REDIS_URL
       - key: LLM_API_KEY
         sync: false
       - key: LLM_PROVIDER
@@ -80,8 +84,10 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
-      - key: UPSTASH_REDIS_URL
-        sync: false
+      - key: CELERY_BROKER_URL
+        fromSecret: UPSTASH_REDIS_URL
+      - key: CELERY_RESULT_BACKEND
+        fromSecret: UPSTASH_REDIS_URL
       - key: LLM_API_KEY
         sync: false
       - key: LLM_PROVIDER
