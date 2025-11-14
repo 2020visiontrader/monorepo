@@ -32,6 +32,8 @@ services:
         value: production
       - key: FEATURE_FLAG_USE_REAL_API
         value: true
+      - key: CELERY_QUEUE
+        value: copy
 
   # Bulk operations worker
   - type: web
@@ -59,6 +61,8 @@ services:
         value: production
       - key: FEATURE_FLAG_USE_REAL_API
         value: true
+      - key: CELERY_QUEUE
+        value: bulk
 
   # Scheduler worker
   - type: web
@@ -86,6 +90,8 @@ services:
         value: production
       - key: FEATURE_FLAG_USE_REAL_API
         value: true
+      - key: CELERY_QUEUE
+        value: scheduler
 
 # Notes:
 # - Free tier: 750 hours/month per worker (~31 days at 1 instance each)

@@ -26,4 +26,6 @@ COPY . .
 # Expose port (only for web services)
 # EXPOSE 8000
 
-# No CMD - workers use startCommand from render.yaml
+# Health check server + Celery worker
+EXPOSE 8000
+CMD cd backend && python worker_entrypoint.py
