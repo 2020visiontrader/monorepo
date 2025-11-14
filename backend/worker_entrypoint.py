@@ -2,33 +2,52 @@
 """
 Worker entrypoint that runs both health check server and Celery worker.
 Required for Render web services that need HTTP health checks.
+Uses only standard library for minimal dependencies.
 """
+import http.server
+import json
 import os
+import socketserver
 import subprocess
 import sys
+import threading
 import time
-from flask import Flask
 
-app = Flask(__name__)
+class HealthCheckHandler(http.server.BaseHTTPRequestHandler):
+    """Simple HTTP handler for health checks."""
 
-@app.route('/health')
-def health():
-    return {'status': 'healthy', 'timestamp': time.time()}
+    def do_GET(self):
+        if self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = {'status': 'healthy', 'timestamp': time.time()}
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def log_message(self, format, *args):
+        # Suppress default logging
+        pass
 
 def run_health_server():
-    """Run Flask health check server in background thread."""
-    app.run(host='0.0.0.0', port=8000, debug=False, use_reloader=False)
+    """Run simple HTTP health check server in background thread."""
+    try:
+        with socketserver.TCPServer(("", 8000), HealthCheckHandler) as httpd:
+            print("Health check server started on port 8000")
+            httpd.serve_forever()
+    except Exception as e:
+        print(f"Health server error: {e}")
 
 def main():
     """Main entrypoint - start health server and Celery worker."""
     # Start health check server in background
-    import threading
     health_thread = threading.Thread(target=run_health_server, daemon=True)
     health_thread.start()
 
     # Give server time to start
     time.sleep(2)
-    print("Health check server started on port 8000")
 
     # Start Celery worker
     queue = os.environ.get('CELERY_QUEUE', 'celery')
