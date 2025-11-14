@@ -7,7 +7,7 @@
 
 services:
   # Copy generation worker
-  - type: worker
+  - type: web
     name: copy-worker
     env: python
     buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
@@ -34,7 +34,7 @@ services:
         value: true
 
   # Bulk operations worker
-  - type: worker
+  - type: web
     name: bulk-worker
     env: python
     buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
@@ -61,7 +61,7 @@ services:
         value: true
 
   # Scheduler worker
-  - type: worker
+  - type: web
     name: scheduler-worker
     env: python
     buildCommand: "pip install poetry && poetry config virtualenvs.create false && cd backend && poetry install --no-root"
